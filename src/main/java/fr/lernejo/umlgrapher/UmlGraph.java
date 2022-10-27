@@ -1,21 +1,27 @@
 package fr.lernejo.umlgrapher;
 
+import java.lang.reflect.Modifier;
+
 public class UmlGraph {
-    private final Class class_name;
-    public UmlGraph(Class class_name){
-        this.class_name = class_name;
+    private final Class[] classes;
+
+    public UmlGraph(Class[] classes) {
+        this.classes = classes;
     }
-    public String as(GraphType graphType){
-        String chaine = "classDiagram\n";
-        switch(graphType) {
-            case Mermaid:
-                chaine = chaine + "class "+this.class_name.getSimpleName()+" {\n";
-                if(this.class_name.isInterface()){
-                    chaine = chaine + "    <<interface>>\n";
-                }
-                chaine = chaine + "}\n";
-                break;
+
+    public String as(GraphType graphType) {
+        return this.getMermaidSyntax();
+    }
+
+    private String getMermaidSyntax() {
+        String syntax = "classDiagram\n";
+        for (Class classe : this.classes) {
+            syntax += "class " + classe.getSimpleName() + " {\n";
+            if (Modifier.isInterface(classe.getModifiers())) {
+                syntax +="    <<interface>>\n";
+            }
+            syntax += "}\n";
         }
-        return chaine;
+        return syntax;
     }
 }
