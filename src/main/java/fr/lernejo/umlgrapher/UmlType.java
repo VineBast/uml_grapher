@@ -1,5 +1,6 @@
-package fr.lernejo.umlgrapher;
 
+
+package fr.lernejo.umlgrapher;
 import org.reflections.Reflections;
 import org.reflections.scanners.Scanners;
 import org.reflections.util.ConfigurationBuilder;
@@ -7,7 +8,6 @@ import org.reflections.util.ConfigurationBuilder;
 import java.util.Comparator;
 import java.util.Set;
 import java.util.TreeSet;
-
 
 public class UmlType {
 
@@ -25,35 +25,38 @@ public class UmlType {
         }
     }
 
-    private void recursionSearch(Class s) {
-        Class superClass = s.getSuperclass();
+    private void getAllChild(Class c) {
+        Reflections reflections;
+        try {
+            reflections = new Reflections(new ConfigurationBuilder().forPackage("")
+                .forPackage("", c.getClassLoader())
+            );
+        } catch (RuntimeException e) {
+            System.out.println("Absence de Classe loader");
+            return;
+        }
+        Set<Class<?>> subTypes = reflections.get(
+            Scanners.SubTypes.get(c).asClass(this.getClass().getClassLoader(), c.getClassLoader())
+        );
+        for (Class classe : subTypes) {
+            getAllChild(classe);
+            if (!types.contains(classe)) types.add(classe);
+        }
+    }
+    private void recursionSearch(Class c) {
+        Class superClass = c.getSuperclass();
         if (superClass != null
             && !superClass.getSimpleName().equals("Object"))
             recursionSearch(superClass);
 
-        for (Class inter : s.getInterfaces()) {
+        for (Class inter : c.getInterfaces()) {
             recursionSearch(inter);
         }
-        this.getChild(s);
-
-        types.add(s);
+        this.getAllChild(c);
+        types.add(c);
     }
 
     public Set<Class> getListOfClass() {
         return this.types;
-    }
-    private void getChild(Class c) {
-        Reflections reflections = new Reflections(new ConfigurationBuilder()
-            .forPackage("")
-            .forPackage("", c.getClassLoader())
-        );
-        Set<Class<?>> subTypes = reflections.get(
-            Scanners.SubTypes
-                .get(c)
-                .asClass(this.getClass().getClassLoader(), c.getClassLoader())
-        );
-        for (Class classe : subTypes) {
-            if (!types.contains(classe)) types.add(classe);
-        }
     }
 }
