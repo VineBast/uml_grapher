@@ -10,7 +10,13 @@ public class UmlGraph {
     }
 
     public String as(GraphType graphType) {
-        return this.getMermaidSyntax();
+        String resulta = "";
+        if (graphType == GraphType.Mermaid) {
+            InternalGraphRepresentation graph = new InternalGraphRepresentation(classes);
+            resulta = new MermaidFormatter().format(graph);
+        }
+
+        return resulta;
     }
 
     private String getMermaidSyntax() {
