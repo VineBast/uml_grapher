@@ -68,8 +68,8 @@ public class UmlGraphTests {
 
         Assertions.assertThat(output).isEqualTo("""
             classDiagram
-            class parent
             class child
+            class parent
             parent <|-- child : extends
             """);
     }
